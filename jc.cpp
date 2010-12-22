@@ -11,16 +11,41 @@
 #include <string>
 using namespace v8;
 
+int x = 1;
+int y = 2;
+
+//X
+Handle<Value> XGetter(Local<String> property, const AccessorInfo& info) {
+    return Integer::New(x);
+}
+
+void XSetter(Local<String> property, Local<Value> value, const AccessorInfo& info) {
+    x = value->Int32Value();
+}
+
+//Y
+Handle<Value> YGetter(Local<String> property, const AccessorInfo& info) {
+    return Integer::New(y);
+}
+
+void YSetter(Local<String> property, Local<Value> value, const AccessorInfo& info) {
+    y = value->Int32Value();
+}
+
 int main(int argc, char* argv[]) {
     std::string input;
     std::cout << "JavaScript Console Start\n";
     std::cout << "------------------------\n";
-    
+
     // Create a stack-allocated handle scope.
     HandleScope handle_scope;
 
+    Handle<ObjectTemplate> global_templ = ObjectTemplate::New();
+    global_templ->SetAccessor(String::New("x"), XGetter, XSetter);
+    global_templ->SetAccessor(String::New("y"), YGetter, YSetter);
+
     // Create a new context.
-    Persistent<Context> context = Context::New();
+    Persistent<Context> context = Context::New(NULL, global_templ);
 
     // Enter the created context for compiling and
     // running the hello world script.
